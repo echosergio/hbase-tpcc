@@ -2,9 +2,12 @@ import Loaders.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.*;
+import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -52,7 +55,6 @@ public class HBaseTPCC {
         createTable("Stock", new String[] { "S" });
         createTable("Order_line", new String[] { "OL" });
 
-        System.exit(-1);
     }
 
     public void loadTables(String folder) throws IOException {
@@ -67,13 +69,32 @@ public class HBaseTPCC {
         new TableLoader("Stock", config, new StockRowLoader()).loadFile(Paths.get(folder, "stock.csv"));
         new TableLoader("Order_line", config, new OrderLineRowLoader()).loadFile(Paths.get(folder, "order_line.csv"));
 
-        System.exit(-1);
     }
 
+    // shell: scan 'Orders', {FILTER => "PrefixFilter ('warehouseIddistrictId') AND (SingleColumnValueFilter('O','O_ENTRY_D',>=,'binary:startDate') AND SingleColumnValueFilter('O','O_ENTRY_D',<,'binary:endDate'))" }
     public List<String> query1(String warehouseId, String districtId, String startDate, String endDate) throws IOException {
-        //TO IMPLEMENT
-        System.exit(-1);
-        return null;
+
+        HTable hTable = new HTable(config, "Orders");
+
+        FilterList filterList = new FilterList();
+        filterList.addFilter(new PrefixFilter(Bytes.toBytes(warehouseId + districtId)));
+        filterList.addFilter(new SingleColumnValueFilter(Bytes.toBytes("O"), Bytes.toBytes("O_ENTRY_D"), CompareFilter.CompareOp.GREATER_OR_EQUAL, Bytes.toBytes(startDate)));
+        filterList.addFilter(new SingleColumnValueFilter(Bytes.toBytes("O"), Bytes.toBytes("O_ENTRY_D"), CompareFilter.CompareOp.LESS, Bytes.toBytes(endDate)));
+
+        Scan scan = new Scan();
+        scan.setFilter(filterList);
+
+        List<String> customerIds = new ArrayList<>();
+
+        ResultScanner scanner = hTable.getScanner(scan);
+        for (Result result : scanner) {
+            customerIds.add(Bytes.toString(result.getValue(Bytes.toBytes("O"), Bytes.toBytes("O_C_ID"))));
+        }
+
+        scanner.close();
+        hTable.close();
+
+        return customerIds;
     }
 
     public void query2(String warehouseId, String districtId, String customerId, String[] discounts) throws IOException {
