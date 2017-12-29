@@ -38,7 +38,7 @@ public class HBaseTPCC {
 
             for (String columnFamily : columnFamilies) {
                 HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(columnFamily);
-                hColumnDescriptor.setMaxVersions(6);
+                hColumnDescriptor.setMaxVersions(10);
 
                 tableDescriptor.addFamily(hColumnDescriptor);
             }
@@ -81,7 +81,8 @@ public class HBaseTPCC {
         HTable hTable = new HTable(config, "Orders");
 
         FilterList filterList = new FilterList();
-        filterList.addFilter(new PrefixFilter(Bytes.toBytes(warehouseId + districtId)));
+
+        filterList.addFilter(new PrefixFilter(RowUtils.getFixedKey(new int[] { Integer.parseInt(warehouseId), Integer.parseInt(districtId) })));
         filterList.addFilter(new SingleColumnValueFilter(Bytes.toBytes("O"), Bytes.toBytes("O_ENTRY_D"), CompareFilter.CompareOp.GREATER_OR_EQUAL, Bytes.toBytes(startDate)));
         filterList.addFilter(new SingleColumnValueFilter(Bytes.toBytes("O"), Bytes.toBytes("O_ENTRY_D"), CompareFilter.CompareOp.LESS, Bytes.toBytes(endDate)));
 

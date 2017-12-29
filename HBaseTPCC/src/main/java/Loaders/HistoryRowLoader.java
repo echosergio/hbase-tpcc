@@ -13,7 +13,7 @@ public class HistoryRowLoader implements RowLoader {
 
         String[] columns = line.split(",");
 
-        byte[] rowKey = RowUtils.getKey(new String[] { columns[0], columns[1], columns[2], columns[3] }, new int[] { 0, 1, 2, 3 });
+        byte[] rowKey = RowUtils.getFixedKey(new int[] { Integer.parseInt(columns[0]), Integer.parseInt(columns[1]), Integer.parseInt(columns[2]), Integer.parseInt(columns[3]) });
         Put p = new Put(rowKey);
 
         p.add(Bytes.toBytes("H"), Bytes.toBytes("H_C_ID"), Bytes.toBytes(columns[0]));

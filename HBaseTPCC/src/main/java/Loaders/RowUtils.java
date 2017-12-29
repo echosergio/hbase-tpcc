@@ -4,19 +4,18 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 public final class RowUtils {
 
-    /**
-     * This method generates the key
-     *
-     * @param values   The value of each column
-     * @param keyTable The position of each value that is required to create the key in the array of values.
-     * @return The encoded key to be inserted in HBase
-     */
-    public static byte[] getKey(String[] values, int[] keyTable) {
-        String keyString = "";
-        for (int keyId : keyTable) {
-            keyString += values[keyId];
+    private static final int INT_SIZE = 4; // Bytes
+
+    public static byte[] getFixedKey(int[] values) {
+        byte[] key = new byte[values.length * INT_SIZE];
+
+        int srcPos = 0;
+        int destPos = 0;
+
+        for (int value : values) {
+            System.arraycopy(Bytes.toBytes(value), srcPos, key, destPos, INT_SIZE);
+            destPos += INT_SIZE;
         }
-        byte[] key = Bytes.toBytes(keyString);
 
         return key;
     }
