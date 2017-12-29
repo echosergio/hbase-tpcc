@@ -132,9 +132,29 @@ public class HBaseTPCC {
     }
 
     public int query4(String warehouseId, String[] districtIds) throws IOException {
-        //TO IMPLEMENT
-        System.exit(-1);
-        return 0;
+        HTable hTable = new HTable(config, "Customer");
+
+        FilterList filterList = new FilterList();
+
+        for (String districtId : districtIds) {
+            filterList.addFilter(new PrefixFilter(RowUtils.getFixedKey(new int[] { Integer.parseInt(warehouseId), Integer.parseInt(districtId) })));
+        }
+
+        Scan scan = new Scan();
+        scan.setFilter(filterList);
+
+        List<String> customerIds = new ArrayList<>();
+
+        ResultScanner scanner = hTable.getScanner(scan);
+
+        for (Result result : scanner) {
+            customerIds.add(Bytes.toString(result.getValue(Bytes.toBytes("C"), Bytes.toBytes("C_ID"))));
+        }
+
+        scanner.close();
+        hTable.close();
+
+        return customerIds.size();
     }
 
     public static void main(String[] args) throws IOException {
