@@ -29,14 +29,18 @@ public class HBaseTPCC {
         this.hBaseAdmin = new HBaseAdmin(config);
     }
 
+    // create 'tableName', 'columnFamilies'
+    // alter 'tableName', NAME => 'columnFamily', VERSIONS => 6
     public void createTable(String tableName, String[] columnFamilies) throws IOException {
 
         if (!hBaseAdmin.tableExists(tableName)) {
-
             HTableDescriptor tableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
 
             for (String columnFamily : columnFamilies) {
-                tableDescriptor.addFamily(new HColumnDescriptor(columnFamily));
+                HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(columnFamily);
+                hColumnDescriptor.setMaxVersions(6);
+
+                tableDescriptor.addFamily(hColumnDescriptor);
             }
 
             hBaseAdmin.createTable(tableDescriptor);
@@ -71,7 +75,7 @@ public class HBaseTPCC {
 
     }
 
-    // shell: scan 'Orders', {FILTER => "PrefixFilter ('warehouseIddistrictId') AND (SingleColumnValueFilter('O','O_ENTRY_D',>=,'binary:startDate') AND SingleColumnValueFilter('O','O_ENTRY_D',<,'binary:endDate'))" }
+    // scan 'Orders', {FILTER => "PrefixFilter ('warehouseId + districtId') AND (SingleColumnValueFilter('O','O_ENTRY_D',>=,'binary:startDate') AND SingleColumnValueFilter('O','O_ENTRY_D',<,'binary:endDate'))" }
     public List<String> query1(String warehouseId, String districtId, String startDate, String endDate) throws IOException {
 
         HTable hTable = new HTable(config, "Orders");
@@ -97,6 +101,7 @@ public class HBaseTPCC {
         return customerIds;
     }
 
+    // put 'Customer','warehouseId + districtId + customerId','C:C_DISCOUNT','discount'
     public void query2(String warehouseId, String districtId, String customerId, String[] discounts) throws IOException {
 
         HTable hTable = new HTable(config, "Customer");
@@ -111,10 +116,18 @@ public class HBaseTPCC {
         hTable.close();
     }
 
+    // get 'Customer','warehouseId + districtId + customerId', {COLUMN => 'C:C_DISCOUNT', VERSIONS => 4}
     public String[] query3(String warehouseId, String districtId, String customerId) throws IOException {
-        //TO IMPLEMENT
-        System.exit(-1);
-        return null;
+
+        HTable hTable = new HTable(config, "Customer");
+
+        Get rowGet = new Get(Bytes.toBytes(warehouseId + districtId + customerId));
+        rowGet.setMaxVersions(4);
+
+        Result result = hTable.get(rowGet);
+        hTable.close();
+
+        return result.getColumnCells(Bytes.toBytes("C"), Bytes.toBytes("C_DISCOUNT")).stream().map(x -> Bytes.toString(CellUtil.cloneValue(x))).toArray(String[]::new);
     }
 
     public int query4(String warehouseId, String[] districtIds) throws IOException {
