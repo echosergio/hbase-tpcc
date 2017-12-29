@@ -98,8 +98,17 @@ public class HBaseTPCC {
     }
 
     public void query2(String warehouseId, String districtId, String customerId, String[] discounts) throws IOException {
-        //TO IMPLEMENT
-        System.exit(-1);
+
+        HTable hTable = new HTable(config, "Customer");
+
+        Put p = new Put(Bytes.toBytes(warehouseId + districtId + customerId));
+
+        for (String discount : discounts) {
+            p.add(Bytes.toBytes("C"), Bytes.toBytes("C_DISCOUNT"), Bytes.toBytes(discount));
+            hTable.put(p);
+        }
+
+        hTable.close();
     }
 
     public String[] query3(String warehouseId, String districtId, String customerId) throws IOException {
