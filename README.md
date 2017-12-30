@@ -7,9 +7,9 @@ The TPC-C benchmark simulates the activity of any company that must manage, sell
   <br>
 </p>
 
-<p align="center"><em><a href="http://www.tpc.org/tpc_documents_current_versions/pdf/tpc-c_v5.11.0.pdf">http://www.tpc.org/tpc_documents_current_versions/pdf/tpc-c_v5.11.0.pdfi</a></em></p>
+<p align="center"><em><a href="http://www.tpc.org/tpc_documents_current_versions/pdf/tpc-c_v5.11.0.pdf">tpc-c_v5.11.0.pdf</a></em></p>
 
-The schema of the tables and the primary are:
+## Schema 
 
 **Warehouse**: W_ID, W_NAME, W_STREET_1, W_STREET_2, W_CITY, W_STATE, W_ZIP, W_ID, W_NAME, W_STREET_1, W_STREET_2, W_CITY, W_STATE, W_ZIP, W_TAX, W_YTD  
 Key: W_ID
