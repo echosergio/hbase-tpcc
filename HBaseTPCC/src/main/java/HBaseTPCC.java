@@ -1,4 +1,5 @@
 import Loaders.*;
+import Row.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
@@ -30,16 +31,14 @@ public class HBaseTPCC {
     }
 
     // create 'tableName', 'columnFamilies'
-    // alter 'tableName', NAME => 'columnFamily', VERSIONS => 6
-    public void createTable(String tableName, String[] columnFamilies) throws IOException {
+    // alter 'tableName', NAME => 'columnFamily', VERSIONS => versions
+    public void createTable(String tableName, String[] columnFamilies, int columnMaxVersions) throws IOException {
 
         if (!hBaseAdmin.tableExists(tableName)) {
             HTableDescriptor tableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
 
             for (String columnFamily : columnFamilies) {
-                HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(columnFamily);
-                hColumnDescriptor.setMaxVersions(10);
-
+                HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(columnFamily).setMaxVersions(columnMaxVersions);
                 tableDescriptor.addFamily(hColumnDescriptor);
             }
 
@@ -49,15 +48,15 @@ public class HBaseTPCC {
 
     public void createTPCCTables() throws IOException {
 
-        createTable("Warehouse", new String[] { "W" });
-        createTable("District", new String[] { "D" });
-        createTable("Item", new String[] { "I" });
-        createTable("New_order", new String[] { "NO" });
-        createTable("Orders", new String[] { "O" });
-        createTable("History", new String[] { "H" });
-        createTable("Customer", new String[] { "C" });
-        createTable("Stock", new String[] { "S" });
-        createTable("Order_line", new String[] { "OL" });
+        createTable("Warehouse", new String[] { "W" }, 1);
+        createTable("District", new String[] { "D" }, 1);
+        createTable("Item", new String[] { "I" }, 1);
+        createTable("New_order", new String[] { "NO" }, 1);
+        createTable("Orders", new String[] { "O" }, 1);
+        createTable("History", new String[] { "H" }, 1);
+        createTable("Customer", new String[] { "C" }, 6);
+        createTable("Stock", new String[] { "S" }, 1);
+        createTable("Order_line", new String[] { "OL" }, 1);
 
     }
 
@@ -82,7 +81,7 @@ public class HBaseTPCC {
 
         FilterList filterList = new FilterList();
 
-        filterList.addFilter(new PrefixFilter(RowUtils.getFixedKey(new int[] { Integer.parseInt(warehouseId), Integer.parseInt(districtId) })));
+        filterList.addFilter(new PrefixFilter(Utils.getKey(new int[] { Integer.parseInt(warehouseId), Integer.parseInt(districtId) })));
         filterList.addFilter(new SingleColumnValueFilter(Bytes.toBytes("O"), Bytes.toBytes("O_ENTRY_D"), CompareFilter.CompareOp.GREATER_OR_EQUAL, Bytes.toBytes(startDate)));
         filterList.addFilter(new SingleColumnValueFilter(Bytes.toBytes("O"), Bytes.toBytes("O_ENTRY_D"), CompareFilter.CompareOp.LESS, Bytes.toBytes(endDate)));
 
@@ -131,13 +130,13 @@ public class HBaseTPCC {
         return result.getColumnCells(Bytes.toBytes("C"), Bytes.toBytes("C_DISCOUNT")).stream().map(x -> Bytes.toString(CellUtil.cloneValue(x))).toArray(String[]::new);
     }
 
+    // scan 'Customer', {FILTER => "PrefixFilter ('warehouseId + districtId1') OR PrefixFilter ('warehouseId + districtIdN')"}
     public int query4(String warehouseId, String[] districtIds) throws IOException {
         HTable hTable = new HTable(config, "Customer");
 
-        FilterList filterList = new FilterList();
-
+        FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ONE);
         for (String districtId : districtIds) {
-            filterList.addFilter(new PrefixFilter(RowUtils.getFixedKey(new int[] { Integer.parseInt(warehouseId), Integer.parseInt(districtId) })));
+            filterList.addFilter(new PrefixFilter(Utils.getKey(new int[] { Integer.parseInt(warehouseId), Integer.parseInt(districtId) })));
         }
 
         Scan scan = new Scan();
@@ -146,7 +145,6 @@ public class HBaseTPCC {
         List<String> customerIds = new ArrayList<>();
 
         ResultScanner scanner = hTable.getScanner(scan);
-
         for (Result result : scanner) {
             customerIds.add(Bytes.toString(result.getValue(Bytes.toBytes("C"), Bytes.toBytes("C_ID"))));
         }

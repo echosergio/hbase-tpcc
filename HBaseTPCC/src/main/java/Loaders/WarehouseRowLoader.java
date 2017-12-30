@@ -1,6 +1,5 @@
 package Loaders;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -14,7 +13,7 @@ public class WarehouseRowLoader implements RowLoader {
 
         String[] columns = line.split(",");
 
-        byte[] rowKey = RowUtils.getFixedKey(new int[] { Integer.parseInt(columns[0]) });
+        byte[] rowKey = Row.Utils.getKey(new int[] { Integer.parseInt(columns[0]) });
         Put p = new Put(rowKey);
 
         p.add(Bytes.toBytes("W"), Bytes.toBytes("W_ID"), Bytes.toBytes(columns[0]));

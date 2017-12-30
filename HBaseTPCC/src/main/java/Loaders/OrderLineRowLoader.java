@@ -13,7 +13,7 @@ public class OrderLineRowLoader implements RowLoader {
 
         String[] columns = line.split(",");
 
-        byte[] rowKey = RowUtils.getFixedKey(new int[] { Integer.parseInt(columns[2]), Integer.parseInt(columns[1]), Integer.parseInt(columns[0]), Integer.parseInt(columns[3]) });
+        byte[] rowKey = Row.Utils.getKey(new int[] { Integer.parseInt(columns[2]), Integer.parseInt(columns[1]), Integer.parseInt(columns[0]), Integer.parseInt(columns[3]) });
         Put p = new Put(rowKey);
 
         p.add(Bytes.toBytes("OL"), Bytes.toBytes("OL_O_ID"), Bytes.toBytes(columns[0]));

@@ -13,7 +13,7 @@ public class StockRowLoader implements RowLoader {
 
         String[] columns = line.split(",");
 
-        byte[] rowKey = RowUtils.getFixedKey(new int[] { Integer.parseInt(columns[1]), Integer.parseInt(columns[0]) });
+        byte[] rowKey = Row.Utils.getKey(new int[] { Integer.parseInt(columns[1]), Integer.parseInt(columns[0]) });
         Put p = new Put(rowKey);
 
         p.add(Bytes.toBytes("S"), Bytes.toBytes("S_I_ID"), Bytes.toBytes(columns[0]));

@@ -13,7 +13,7 @@ public class ItemRowLoader implements RowLoader {
 
         String[] columns = line.split(",");
 
-        byte[] rowKey = RowUtils.getFixedKey(new int[] { Integer.parseInt(columns[0]) });
+        byte[] rowKey = Row.Utils.getKey(new int[] { Integer.parseInt(columns[0]) });
         Put p = new Put(rowKey);
 
         p.add(Bytes.toBytes("I"), Bytes.toBytes("I_ID"), Bytes.toBytes(columns[0]));

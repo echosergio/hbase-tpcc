@@ -1,12 +1,12 @@
-package Loaders;
+package Row;
 
 import org.apache.hadoop.hbase.util.Bytes;
 
-public final class RowUtils {
+public final class Utils {
 
     private static final int INT_SIZE = 4; // Bytes
 
-    public static byte[] getFixedKey(int[] values) {
+    public static byte[] getKey(int[] values) {
         byte[] key = new byte[values.length * INT_SIZE];
 
         int srcPos = 0;

@@ -13,7 +13,7 @@ public class CustomerRowLoader implements RowLoader {
 
         String[] columns = line.split(",");
 
-        byte[] rowKey = RowUtils.getFixedKey(new int[] { Integer.parseInt(columns[1]), Integer.parseInt(columns[2]), Integer.parseInt(columns[0]) });
+        byte[] rowKey = Row.Utils.getKey(new int[] { Integer.parseInt(columns[1]), Integer.parseInt(columns[2]), Integer.parseInt(columns[0]) });
         Put p = new Put(rowKey);
 
         p.add(Bytes.toBytes("C"), Bytes.toBytes("C_ID"), Bytes.toBytes(columns[0]));
