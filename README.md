@@ -3,11 +3,10 @@
 The TPC-C benchmark simulates the activity of any company that must manage, sell, and distribute products or services. TPC-C defines nine tables with the following cardinalities.  
 
 <p align="center">
-  <img  src="https://upload.wikimedia.org/wikipedia/commons/6/63/Sch%C3%A9ma_Datab%C3%A1ze_metody_TPC-C.png" alt="Database schema" width="500">
-  <br>
+  <br><img  src="https://upload.wikimedia.org/wikipedia/commons/6/63/Sch%C3%A9ma_Datab%C3%A1ze_metody_TPC-C.png" alt="Database schema" width="500">
 </p>
 
-<p align="center"><em><a href="http://www.tpc.org/tpc_documents_current_versions/pdf/tpc-c_v5.11.0.pdf">tpc-c_v5.11.0.pdf</a></em></p>
+<p align="center"><em><a href="http://www.tpc.org/tpc_documents_current_versions/pdf/tpc-c_v5.11.0.pdf">TPC BENCHMARK: Standard Specification, Revision 5.11 </a></em></p>
 
 ## Schema 
 
