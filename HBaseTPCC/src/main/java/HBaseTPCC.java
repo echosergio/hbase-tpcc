@@ -74,16 +74,16 @@ public class HBaseTPCC {
 
     }
 
-    // scan 'Orders', {FILTER => "PrefixFilter ('warehouseId + districtId') AND (SingleColumnValueFilter('O','O_ENTRY_D',>=,'binary:startDate') AND SingleColumnValueFilter('O','O_ENTRY_D',<,'binary:endDate'))" }
+    // scan 'History', {FILTER => "PrefixFilter ('warehouseId + districtId') AND (SingleColumnValueFilter('H','H_DATE',>=,'binary:startDate') AND SingleColumnValueFilter('H','H_DATE',<,'binary:endDate'))" }
     public List<String> query1(String warehouseId, String districtId, String startDate, String endDate) throws IOException {
 
-        HTable hTable = new HTable(config, "Orders");
+        HTable hTable = new HTable(config, "History");
 
         FilterList filterList = new FilterList();
 
         filterList.addFilter(new PrefixFilter(Utils.getKey(new int[] { Integer.parseInt(warehouseId), Integer.parseInt(districtId) })));
-        filterList.addFilter(new SingleColumnValueFilter(Bytes.toBytes("O"), Bytes.toBytes("O_ENTRY_D"), CompareFilter.CompareOp.GREATER_OR_EQUAL, Bytes.toBytes(startDate)));
-        filterList.addFilter(new SingleColumnValueFilter(Bytes.toBytes("O"), Bytes.toBytes("O_ENTRY_D"), CompareFilter.CompareOp.LESS, Bytes.toBytes(endDate)));
+        filterList.addFilter(new SingleColumnValueFilter(Bytes.toBytes("H"), Bytes.toBytes("H_DATE"), CompareFilter.CompareOp.GREATER_OR_EQUAL, Bytes.toBytes(startDate)));
+        filterList.addFilter(new SingleColumnValueFilter(Bytes.toBytes("H"), Bytes.toBytes("H_DATE"), CompareFilter.CompareOp.LESS, Bytes.toBytes(endDate)));
 
         Scan scan = new Scan();
         scan.setFilter(filterList);
@@ -92,7 +92,7 @@ public class HBaseTPCC {
 
         ResultScanner scanner = hTable.getScanner(scan);
         for (Result result : scanner) {
-            customerIds.add(Bytes.toString(result.getValue(Bytes.toBytes("O"), Bytes.toBytes("O_C_ID"))));
+            customerIds.add(Bytes.toString(result.getValue(Bytes.toBytes("H"), Bytes.toBytes("H_C_ID"))));
         }
 
         scanner.close();

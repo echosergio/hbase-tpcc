@@ -13,16 +13,17 @@ public class HistoryRowLoader implements RowLoader {
 
         String[] columns = line.split(",");
 
-        byte[] rowKey = Row.Utils.getKey(new int[] { Integer.parseInt(columns[0]), Integer.parseInt(columns[1]), Integer.parseInt(columns[2]), Integer.parseInt(columns[3]) });
+        byte[] rowKey = Row.Utils.getKey(new int[] { Integer.parseInt(columns[2]), Integer.parseInt(columns[1]), Integer.parseInt(columns[0]), Integer.parseInt(columns[3]) });
         Put p = new Put(rowKey);
 
         p.add(Bytes.toBytes("H"), Bytes.toBytes("H_C_ID"), Bytes.toBytes(columns[0]));
         p.add(Bytes.toBytes("H"), Bytes.toBytes("H_C_D_ID"), Bytes.toBytes(columns[1]));
         p.add(Bytes.toBytes("H"), Bytes.toBytes("H_C_W_ID"), Bytes.toBytes(columns[2]));
         p.add(Bytes.toBytes("H"), Bytes.toBytes("H_D_ID"), Bytes.toBytes(columns[3]));
-        p.add(Bytes.toBytes("H"), Bytes.toBytes("H_DATE"), Bytes.toBytes(columns[4]));
-        p.add(Bytes.toBytes("H"), Bytes.toBytes("H_AMOUNT"), Bytes.toBytes(columns[5]));
-        p.add(Bytes.toBytes("H"), Bytes.toBytes("H_DATA"), Bytes.toBytes(columns[6]));
+        p.add(Bytes.toBytes("H"), Bytes.toBytes("H_W_ID"), Bytes.toBytes(columns[4]));
+        p.add(Bytes.toBytes("H"), Bytes.toBytes("H_DATE"), Bytes.toBytes(columns[5]));
+        p.add(Bytes.toBytes("H"), Bytes.toBytes("H_AMOUNT"), Bytes.toBytes(columns[6]));
+        p.add(Bytes.toBytes("H"), Bytes.toBytes("H_DATA"), Bytes.toBytes(columns[7]));
 
         hTable.put(p);
     }
