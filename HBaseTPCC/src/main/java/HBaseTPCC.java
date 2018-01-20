@@ -131,10 +131,12 @@ public class HBaseTPCC {
     }
 
     // scan 'Customer', {FILTER => "PrefixFilter ('warehouseId + districtId1') OR PrefixFilter ('warehouseId + districtIdN')"}
-    public int query4(String warehouseId, String[] districtIds) throws IOException {
+    public List<Integer> query4(String warehouseId, String[] districtIds) throws IOException {
+
         HTable hTable = new HTable(config, "Customer");
 
         FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ONE);
+
         for (String districtId : districtIds) {
             filterList.addFilter(new PrefixFilter(Utils.getKey(new int[] { Integer.parseInt(warehouseId), Integer.parseInt(districtId) })));
         }
@@ -142,17 +144,17 @@ public class HBaseTPCC {
         Scan scan = new Scan();
         scan.setFilter(filterList);
 
-        List<String> customerIds = new ArrayList<>();
+        List<Integer> customerIds = new ArrayList<>();
 
         ResultScanner scanner = hTable.getScanner(scan);
         for (Result result : scanner) {
-            customerIds.add(Bytes.toString(result.getValue(Bytes.toBytes("C"), Bytes.toBytes("C_ID"))));
+            customerIds.add(Integer.parseInt(Bytes.toString(result.getValue(Bytes.toBytes("C"), Bytes.toBytes("C_ID")))));
         }
 
         scanner.close();
         hTable.close();
 
-        return customerIds.size();
+        return customerIds;
     }
 
     public static void main(String[] args) throws IOException {
@@ -225,7 +227,9 @@ public class HBaseTPCC {
                 System.exit(-1);
             }
 
-            System.out.println("There are " + hBaseTPCC.query4(args[2], args[3].split(",")) + " customers that belong to warehouse " + args[2] + " of districts " + args[3] + ".");
+            List<Integer> customerIds = hBaseTPCC.query4(args[2], args[3].split(","));
+            System.out.println("There are " + customerIds.size() + " customers that belong to warehouse " + args[2] + " of districts " + args[3] + ".");
+            System.out.println("The list of customers is: " + Arrays.toString(customerIds.toArray(new Integer[customerIds.size()])));
 
         } else {
 
