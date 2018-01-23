@@ -106,7 +106,8 @@ public class HBaseTPCC {
 
         HTable hTable = new HTable(config, "Customer");
 
-        Put p = new Put(Bytes.toBytes(warehouseId + districtId + customerId));
+        byte[] rowKey = Utils.getKey(new int[] { Integer.parseInt(warehouseId), Integer.parseInt(districtId), Integer.parseInt(customerId) });
+        Put p = new Put(rowKey);
 
         for (String discount : discounts) {
             p.add(Bytes.toBytes("C"), Bytes.toBytes("C_DISCOUNT"), Bytes.toBytes(discount));
@@ -121,7 +122,8 @@ public class HBaseTPCC {
 
         HTable hTable = new HTable(config, "Customer");
 
-        Get rowGet = new Get(Bytes.toBytes(warehouseId + districtId + customerId));
+        byte[] rowKey = Utils.getKey(new int[] { Integer.parseInt(warehouseId), Integer.parseInt(districtId), Integer.parseInt(customerId) });
+        Get rowGet = new Get(rowKey);
         rowGet.setMaxVersions(4);
 
         Result result = hTable.get(rowGet);
